@@ -1,4 +1,19 @@
+#!/usr/bin/python3
+"""
+Pascal's Triangle
+"""
+
+
 def pascal_triangle(n: int) -> list[list[int]]:
+    """
+    Returns a list of lists of integers representing the Pascal’s triangle of n
+
+    Args:
+        n (int): the number of rows of Pascal's triangle
+
+    Returns:
+        list[list[int]]: the Pascal's triangle of n
+    """
     if n < 1:
         return []
     triangle = [[1] * (i + 1) for i in range(n)]
