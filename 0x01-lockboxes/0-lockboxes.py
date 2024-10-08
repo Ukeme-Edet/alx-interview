@@ -2,7 +2,7 @@
 """
 Lockboxes
 """
-from collections import defaultdict
+from queue import Queue
 
 
 def canUnlockAll(boxes):
@@ -15,22 +15,14 @@ def canUnlockAll(boxes):
     Returns:
         bool: True if all boxes can be opened, False otherwise
     """
-    unlocked = defaultdict(bool)
-    dfs(boxes, 0, unlocked)
-    return all(unlocked[box] for box in range(len(boxes)))
-
-
-def dfs(boxes, box=0, unlocked=defaultdict(bool)):
-    """
-    Depth-first search
-
-    Args:
-        boxes (list[list[int]]): a list of lists of integers
-        box (int): the current box
-        unlocked (dict): a dictionary of unlocked boxes
-    """
-    if unlocked[box] or box >= len(boxes):
-        return
-    unlocked[box] = True
-    for bo in boxes[box]:
-        dfs(boxes, bo, unlocked)
+    stat = [False] * len(boxes)
+    stat[0] = True
+    to_visit = Queue()
+    to_visit.put(0)
+    while not to_visit.empty():
+        box = to_visit.get()
+        for key in boxes[box]:
+            if key < len(boxes) and not stat[key]:
+                stat[key] = True
+                to_visit.put(key)
+    return all(stat)
