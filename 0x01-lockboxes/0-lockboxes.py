@@ -29,7 +29,7 @@ def dfs(boxes, box=0, unlocked=defaultdict(bool)):
         box (int): the current box
         unlocked (dict): a dictionary of unlocked boxes
     """
-    if unlocked[box]:
+    if unlocked[box] or box >= len(boxes):
         return
     unlocked[box] = True
     for bo in boxes[box]:
