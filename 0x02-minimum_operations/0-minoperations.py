@@ -16,7 +16,7 @@ def get_factors(n):
         list: list of prime factors
     """
     factors = []
-    for i in range(1, n + 1):
+    for i in range(1, (n + 1) // 2):
         if not n % i:
             factors.append(i)
     return factors
