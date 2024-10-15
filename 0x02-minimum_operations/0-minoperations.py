@@ -5,7 +5,7 @@ Minimum Operations
 from collections import defaultdict
 
 
-def get_prime_factors(n):
+def get_factors(n):
     """
     Get prime factors of a number
 
@@ -15,13 +15,11 @@ def get_prime_factors(n):
     Returns:
         list: list of prime factors
     """
-    pf = [True] * (n + 1)
-    pf[0] = False
-    for i in range(2, int(n**0.5) + 1):
-        if pf[i]:
-            for j in range(i * i, n + 1, i):
-                pf[j] = False
-    return [i for i in range(2, n + 1) if pf[i] and not n % i]
+    factors = []
+    for i in range(1, n + 1):
+        if not n % i:
+            factors.append(i)
+    return factors
 
 
 def minOperations(n):
@@ -37,8 +35,8 @@ def minOperations(n):
     """
     dp = defaultdict(lambda: float("inf"))
     dp[1] = 0
-    pf = get_prime_factors(n)
-    for f in pf:
+    fs = get_factors(n)
+    for f in fs:
         dp[f] = min(dp[f], f)
         for i in range(f, n + 1, f):
             dp[i] = min(dp[i], dp[f] + i // f)
