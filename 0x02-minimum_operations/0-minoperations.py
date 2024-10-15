@@ -5,7 +5,7 @@ Minimum Operations
 from collections import defaultdict
 
 
-def get_prime_factors(n: int) -> list[int]:
+def get_prime_factors(n):
     """
     Get prime factors of a number
 
@@ -24,7 +24,7 @@ def get_prime_factors(n: int) -> list[int]:
     return [i for i in range(2, n + 1) if pf[i] and not n % i]
 
 
-def minOperations(n: int) -> int:
+def minOperations(n):
     """
     Calculate the fewest number of operations needed to result in exactly n H\
         characters in the file
