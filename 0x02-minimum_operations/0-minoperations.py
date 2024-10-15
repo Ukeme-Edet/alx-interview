@@ -39,7 +39,7 @@ def minOperations(n):
     dp[1] = 0
     pf = get_prime_factors(n)
     for f in pf:
-        dp[f] = f
+        dp[f] = min(dp[f], f)
         for i in range(f, n + 1, f):
             dp[i] = min(dp[i], dp[f] + i // f)
     return dp[n]
