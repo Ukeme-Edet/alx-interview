@@ -26,10 +26,11 @@ def print_stats(stats):
     Args:
         stats (dict): dictionary of stats
     """
-    print("File size: {}".format(stats["File size"]))
+    out = "File size: {}".format(stats["File size"])
     for key in sorted(stats.keys()):
         if key != "File size" and stats[key] != 0:
-            print("{}: {}".format(key, stats[key]))
+            out += "\n{}: {}".format(key, stats[key])
+    print(out)
 
 
 def valid_line(line):
@@ -73,12 +74,12 @@ stats = {
 line_count = 0
 try:
     for line in stdin:
-        if not valid_line(line):
-            pass
-        data = line.split()
-        stats[data[-2]] += 1
-        stats["File size"] += int(data[-1])
         line_count += 1
+        if not valid_line(line):
+            continue
+        line = line.split()
+        stats["File size"] += int(line[-1])
+        stats[line[-2]] += 1
         if line_count == 10:
             print_stats(stats)
             line_count = 0
