@@ -14,7 +14,7 @@ ese statistics from the beginning:
         - Format: <status code>: <number>
         - Status codes should be printed in ascending order
 """
-from sys import stdin, stdout
+from sys import stdin
 import ipaddress
 import datetime
 
@@ -84,3 +84,4 @@ try:
             line_count = 0
 except KeyboardInterrupt:
     print_stats(stats)
+    raise
