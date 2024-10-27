@@ -84,6 +84,6 @@ try:
             print_stats(stats)
             line_count = 0
     print_stats(stats)
-except KeyboardInterrupt:
+except (KeyboardInterrupt, EOFError):
     print_stats(stats)
     raise
