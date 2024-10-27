@@ -15,7 +15,8 @@ ese statistics from the beginning:
         - Status codes should be printed in ascending order
 """
 from sys import stdin, stdout
-import ipaddress, datetime
+import ipaddress
+import datetime
 
 
 def print_stats(stats):
