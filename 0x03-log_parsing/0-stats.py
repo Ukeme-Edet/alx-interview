@@ -82,6 +82,7 @@ try:
         if line_count == 10:
             print_stats(stats)
             line_count = 0
+    print_stats(stats)
 except KeyboardInterrupt:
     print_stats(stats)
     raise
