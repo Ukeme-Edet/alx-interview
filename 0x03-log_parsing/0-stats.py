@@ -1,26 +1,12 @@
 #!/usr/bin/python3
 """
-This script reads log lines from standard input, validates them, and keeps\
-    track of statistics.
+Log Parsing
 
-The log lines are expected to be in the format:
-    <IP Address> - - [<Date>] "GET /projects/260 HTTP/1.1" <Status Code> <File\
-        Size>
+Reads stdin line by line and computes metrics
 
-The script maintains a count of the total file size and the number of\
-    occurrences of each status code.
-Every 10 lines, it prints the current statistics.
-
-Functions:
-    check_line(line): Validates if a line is a proper log line.
-
-Variables:
-    i (int): Counter for the number of lines processed.
-    stats (defaultdict): Dictionary to store the statistics.
-
-Exceptions:
-    KeyboardInterrupt: Handles the interruption to print the final statistics\
-        before exiting.
+Metrics:
+- Total file size
+- Number of lines by status code
 """
 from collections import defaultdict
 from sys import stdin
