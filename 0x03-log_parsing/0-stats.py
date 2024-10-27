@@ -1,89 +1,85 @@
 #!/usr/bin/python3
+"""A script for parsing HTTP request logs.
 """
-Log Parsing
-
-Reads stdin line by line and computes metrics
-
-Metrics:
-    - Input format: <IP Address> - [<date>] "GET /projects/260 HTTP/1.1" <stat\
-us code> <file size>
-    - After every 10 lines and/or a keyboard interruption (CTRL + C), print th\
-ese statistics from the beginning:
-        - Total file size: File size
-        - Status code: 200, 301, 400, 401, 403, 404, 405, 500
-        - Format: <status code>: <number>
-        - Status codes should be printed in ascending order
-"""
-from sys import stdin
-import ipaddress
-import datetime
+import re
 
 
-def print_stats(stats):
-    """
-    Print Stats
+def extract_input(input_line):
+    """Extracts sections of a line of an HTTP request log."""
+    fp = (
+        r"\s*(?P<ip>\S+)\s*",
+        r"\s*\[(?P<date>\d+\-\d+\-\d+ \d+:\d+:\d+\.\d+)\]",
+        r'\s*"(?P<request>[^"]*)"\s*',
+        r"\s*(?P<status_code>\S+)",
+        r"\s*(?P<file_size>\d+)",
+    )
+    info = {
+        "status_code": 0,
+        "file_size": 0,
+    }
+    log_fmt = "{}\\-{}{}{}{}\\s*".format(fp[0], fp[1], fp[2], fp[3], fp[4])
+    resp_match = re.fullmatch(log_fmt, input_line)
+    if resp_match is not None:
+        status_code = resp_match.group("status_code")
+        file_size = int(resp_match.group("file_size"))
+        info["status_code"] = status_code
+        info["file_size"] = file_size
+    return info
+
+
+def print_statistics(total_file_size, status_codes_stats):
+    """Prints the accumulated statistics of the HTTP request log."""
+    print("File size: {:d}".format(total_file_size), flush=True)
+    for status_code in sorted(status_codes_stats.keys()):
+        num = status_codes_stats.get(status_code, 0)
+        if num > 0:
+            print("{:s}: {:d}".format(status_code, num), flush=True)
+
+
+def update_metrics(line, total_file_size, status_codes_stats):
+    """Updates the metrics from a given HTTP request log.
 
     Args:
-        stats (dict): dictionary of stats
+        line (str): The line of input from which to retrieve the metrics.
+
+    Returns:
+        int: The new total file size.
     """
-    out = "File size: {}".format(stats["File size"])
-    for key in sorted(stats.keys()):
-        if key != "File size" and stats[key] != 0:
-            out += "\n{}: {}".format(key, stats[key])
-    print(out)
+    line_info = extract_input(line)
+    status_code = line_info.get("status_code", "0")
+    if status_code in status_codes_stats.keys():
+        status_codes_stats[status_code] += 1
+    return total_file_size + line_info["file_size"]
 
 
-def valid_line(line):
-    ip = line.split("-")[0].strip()
-    date = line.split("[")[1].split("]")[0].strip()
-    request = '"' + line.split('"')[1] + '"'
-    status = line.split()[-2]
-    file_size = line.split()[-1]
+def run():
+    """Starts the log parser."""
+    line_num = 0
+    total_file_size = 0
+    status_codes_stats = {
+        "200": 0,
+        "301": 0,
+        "400": 0,
+        "401": 0,
+        "403": 0,
+        "404": 0,
+        "405": 0,
+        "500": 0,
+    }
     try:
-        ipaddress.ip_address(ip)
-        datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f")
-        int(file_size)
-    except ValueError:
-        return False
-    return request == '"GET /projects/260 HTTP/1.1"' and status in [
-        "200",
-        "301",
-        "400",
-        "401",
-        "403",
-        "404",
-        "405",
-        "500",
-    ]
+        while True:
+            line = input()
+            total_file_size = update_metrics(
+                line,
+                total_file_size,
+                status_codes_stats,
+            )
+            line_num += 1
+            if line_num % 10 == 0:
+                print_statistics(total_file_size, status_codes_stats)
+    except (KeyboardInterrupt, EOFError):
+        print_statistics(total_file_size, status_codes_stats)
 
 
-stats = {
-    key: 0
-    for key in [
-        "200",
-        "301",
-        "400",
-        "401",
-        "403",
-        "404",
-        "405",
-        "500",
-        "File size",
-    ]
-}
-line_count = 0
-try:
-    for line in stdin:
-        line_count += 1
-        if not valid_line(line):
-            continue
-        line = line.split()
-        stats["File size"] += int(line[-1])
-        stats[line[-2]] += 1
-        if line_count == 10:
-            print_stats(stats)
-            line_count = 0
-    print_stats(stats)
-except (KeyboardInterrupt, EOFError):
-    print_stats(stats)
-    raise
+if __name__ == "__main__":
+    run()
