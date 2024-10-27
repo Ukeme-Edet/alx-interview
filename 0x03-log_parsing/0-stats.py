@@ -26,9 +26,10 @@ def print_stats(stats):
     Args:
         stats (dict): dictionary of stats
     """
-    stdout.write(
-        "\n".join([f"{key}: {value}" for key, value in stats.items()]) + "\n"
-    )
+    print("File size: {}".format(stats["File size"]))
+    for key in sorted(stats.keys()):
+        if key != "File size" and stats[key] != 0:
+            print("{}: {}".format(key, stats[key]))
 
 
 def valid_line(line):
