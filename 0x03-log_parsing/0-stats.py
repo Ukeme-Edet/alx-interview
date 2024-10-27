@@ -5,57 +5,80 @@ Log Parsing
 Reads stdin line by line and computes metrics
 
 Metrics:
-- Total file size
-- Number of lines by status code
+    - Input format: <IP Address> - [<date>] "GET /projects/260 HTTP/1.1" <stat\
+us code> <file size>
+    - After every 10 lines and/or a keyboard interruption (CTRL + C), print th\
+ese statistics from the beginning:
+        - Total file size: File size
+        - Status code: 200, 301, 400, 401, 403, 404, 405, 500
+        - Format: <status code>: <number>
+        - Status codes should be printed in ascending order
 """
-from collections import defaultdict
-from sys import stdin
-import regex as re
+from sys import stdin, stdout
+import ipaddress, datetime
 
 
-def check_line(line):
+def print_stats(stats):
     """
-    Check if line is a valid log line
+    Print Stats
 
     Args:
-        line (str): line to check
-
-    Returns:
-        bool: True if line is valid, False otherwise
+        stats (dict): dictionary of stats
     """
-    ip, rest = line.split(" - ")
-    if not re.match(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", ip):
-        return False
-    rest = rest.split(" ")
-    return (
-        len(rest) == 7
-        and re.match(
-            r"\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6}\]",
-            " ".join(rest[:2]),
-        )
-        and re.match(r"\"GET /projects/260 HTTP/1.1\"", " ".join(rest[2:5]))
-        and re.match(r"\d{3}", rest[5])
-        and re.match(r"\d+", rest[6])
+    stdout.write(
+        "\n".join([f"{key}: {value}" for key, value in stats.items()]) + "\n"
     )
 
 
-i = 0
-stats = defaultdict(int)
+def valid_line(line):
+    ip = line.split("-")[0].strip()
+    date = line.split("[")[1].split("]")[0].strip()
+    request = '"' + line.split('"')[1] + '"'
+    status = line.split()[-2]
+    file_size = line.split()[-1]
+    try:
+        ipaddress.ip_address(ip)
+        datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f")
+        int(file_size)
+    except ValueError:
+        return False
+    return request == '"GET /projects/260 HTTP/1.1"' and status in [
+        "200",
+        "301",
+        "400",
+        "401",
+        "403",
+        "404",
+        "405",
+        "500",
+    ]
+
+
+stats = {
+    key: 0
+    for key in [
+        "200",
+        "301",
+        "400",
+        "401",
+        "403",
+        "404",
+        "405",
+        "500",
+        "File size",
+    ]
+}
+line_count = 0
 try:
-    while True:
-        line = stdin.readline()
-        if check_line(line):
-            stats["size"] += int(line.split(" ")[-1])
-            stats[f"{line.split(' ')[-2]}"] += 1
-        i += 1
-        if i % 10 == 0:
-            print(f"File size: {stats['size']}")
-            for k, v in sorted(stats.items()):
-                if k != "size" and v != 0:
-                    print(f"{k}: {v}")
-except KeyboardInterrupt as e:
-    print(f"File size: {stats['size']}")
-    for k, v in sorted(stats.items()):
-        if k != "size" and v != 0:
-            print(f"{k}: {v}")
-    raise e
+    for line in stdin:
+        if not valid_line(line):
+            pass
+        data = line.split()
+        stats[data[-2]] += 1
+        stats["File size"] += int(data[-1])
+        line_count += 1
+        if line_count == 10:
+            print_stats(stats)
+            line_count = 0
+except KeyboardInterrupt:
+    print_stats(stats)
