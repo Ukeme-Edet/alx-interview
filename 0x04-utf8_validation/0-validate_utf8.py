@@ -15,21 +15,17 @@ def validUTF8(data):
     Returns:
         True if data is a valid UTF-8 encoding, else False
     """
-    btlf = 0
+    n_bytes = 0
     for byte in data:
-        if btlf:
-            if byte >> 6 != 0b10:
+        byte = byte & 0xFF
+        if n_bytes:
+            if byte >> 6 != 2:
                 return False
-            btlf -= 1
+            n_bytes -= 1
             continue
-        if byte >> 7 == 0:
-            continue
-        if byte >> 5 == 0b110:
-            btlf = 1
-        elif byte >> 4 == 0b1110:
-            btlf = 2
-        elif byte >> 3 == 0b11110:
-            btlf = 3
-        else:
+        while (1 << abs(7 - n_bytes)) & byte:
+            n_bytes += 1
+        if n_bytes == 1 or n_bytes > 4:
             return False
-    return btlf == 0
+        n_bytes = max(n_bytes - 1, 0)
+    return n_bytes == 0
