@@ -37,4 +37,5 @@ solutions = []
 
 place_queens(0, N, columns, lrd, rld)
 
-print(solutions)
+for solution in solutions:
+    print(solution)
