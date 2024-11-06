@@ -28,7 +28,18 @@ def place_queens(np, n, cols, lrd, rld, cp=[]):
         cols[i] = lrd[np + i] = rld[n - 1 + np - i] = 0
 
 
-N = int(sys.argv[1])
+try:
+    N = int(sys.argv[1])
+except IndexError:
+    print("Usage: nqueens N")
+    sys.exit(1)
+except ValueError:
+    print("N must be a number")
+    sys.exit(1)
+
+if N < 4:
+    print("N must be at least 4")
+    sys.exit(1)
 
 columns = [0] * N
 lrd = [0] * (2 * N - 1)
