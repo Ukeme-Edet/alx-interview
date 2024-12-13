@@ -4,26 +4,6 @@ Prime Game
 """
 
 
-def checkWinner(num):
-    """
-    Function that returns the winner of the game
-
-    Args:
-        num: an integer
-
-    Returns:
-        The winner of the game
-    """
-    turns = 0
-    x = [False for i in range(num + 1)]
-    for i in range(2, num + 1):
-        if not x[i]:
-            turns += 1
-            for j in range(i, num + 1, i):
-                x[j] = True
-    return "Maria" if turns % 2 else "Ben"
-
-
 def isWinner(x, nums):
     """
     Function that returns the winner of the game
@@ -35,9 +15,19 @@ def isWinner(x, nums):
     Returns:
         The winner of the game
     """
+    ps = [1] * 10001
+    ps[0] = ps[1] = 0
+    for i in range(2, 10001):
+        if ps[i]:
+            for j in range(i * i, 10001, i):
+                ps[j] = 0
+    primes = [x for x in range(10001) if ps[x]]
     log = {"Ben": 0, "Maria": 0}
     for num in nums:
-        log[checkWinner(num)] += 1
+        i = 0
+        while primes[i] <= num:
+            i += 1
+        log["Maria" if i % 2 else "Ben"] += 1
     return (
         "Ben"
         if log["Ben"] > log["Maria"]
