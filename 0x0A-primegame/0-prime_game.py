@@ -15,6 +15,8 @@ def isWinner(x, nums):
     Returns:
         The winner of the game
     """
+    if x != len(nums):
+        return None
     ps = [1] * 10001
     ps[0] = ps[1] = 0
     for i in range(2, 10001):
