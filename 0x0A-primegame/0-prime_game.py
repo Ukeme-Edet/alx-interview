@@ -27,7 +27,7 @@ def isWinner(x, nums):
     log = {"Ben": 0, "Maria": 0}
     for num in nums:
         i = 0
-        while primes[i] <= num:
+        while i < len(primes) and primes[i] <= num:
             i += 1
         log["Maria" if i % 2 else "Ben"] += 1
     return (
